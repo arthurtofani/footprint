@@ -1,0 +1,27 @@
+/dataset/YTCdataset/The Beatles - Let It Be/Let It Be - The Beatles - Lyrics-0714IbwC3HA.mp3
+/dataset/YTCdataset/David Bowie - Space Oddity/Space Oddity-KaOC9danxNo.mp3
+/dataset/YTCdataset/Metallica - Enter Sandman/Motorhead  - Enter Sandman-hF9Gr5waAJg.mp3
+/dataset/YTCdataset/Black Sabbath - War Pigs/Cake - War Pigs-IDJgwUeW7_k.mp3
+/dataset/YTCdataset/Lorde - Royals/Royals - Lorde (Acoustic Cover)-CaknWuU_L4Y.mp3
+/dataset/YTCdataset/The Beach Boys - Surfin USA/Blind Guardian - Surfin USA (The Beach Boys Cover)-E1eSpIW2UDY.mp3
+/dataset/YTCdataset/Lady Gaga - Bad Romance/Lady GaGa - Bad Romance (Acoustic Cover)-cvWF5Ps7knQ.mp3
+/dataset/YTCdataset/Elvis Presley - Can't Help Falling In Love/Can't Help Falling In Love-5sQeQC4hT10.mp3
+/dataset/YTCdataset/The Rolling Stones - Satisfaction/The Rolling Stones - Satisfaction (live)-qXcNQTa3zgs.mp3
+/dataset/YTCdataset/Ramones - I Wanna Be Sedated/Ramones - I Wanna Be Sedated-JBN1CkyRzmE.mp3
+/dataset/YTCdataset/Bob Dylan - Like a Rolling Stone/John Mayer - Like a Rolling Stone (Bob Dylan Cover)-A8VluUTz51k.mp3
+/dataset/YTCdataset/Tom Jobin - Garota de Ipanema/Vanessa da Mata - Garota de Ipanema-_baIiIiTMmE.mp3
+/dataset/YTCdataset/Thin Lizzy - Whiskey in the Jar/thin lizzy - whiskey in the jar-_j4OC7-g_84.mp3
+/dataset/YTCdataset/Misfits - Last Caress/Danzig & Doyle 'Last Caress'-HWc_gEMV8x4.mp3
+/dataset/YTCdataset/Beyonce - Single Ladies/Beyonce - Single Ladies Live HD-0FxZZj5S0uQ.mp3
+/dataset/YTCdataset/Arrows - I Love Rock and Roll/Arrows, I Love Rock N Roll, 1976-LXGEpiJATGk.mp3
+/dataset/YTCdataset/Arrows - I Love Rock and Roll/I love Rock n roll - Joan jett The Blackhearts-xL5spALs-eA.mp3
+/dataset/YTCdataset/The Doors - Riders on the Storm/The Doors - Riders On The Storm -  piano cover-4fGE07dATvc.mp3
+/dataset/YTCdataset/Bee Gees - Stayin' Alive/Capital Cities - Stayin' Alive (Cover)-NxmFohOvuYA.mp3
+/dataset/YTCdataset/Daft Punk - Get Lucky/Get Lucky (Live Cover) SOS Events june 2013-rBXtzZM0yAo.mp3
+/dataset/YTCdataset/Bob Marley - No Woman No Cry/The Fugees - No Woman No Cry-kOmhVEiq95I.mp3
+/dataset/YTCdataset/Guns N' Roses - Sweet Child o' Mine/Sweet Child O Mine Cover by Guns N Roses-QUPcHxHRx3s.mp3
+/dataset/YTCdataset/Michael Jackson - Thriller/Michael Jackson - Thriller (A Cappella Cover by Duwende)-VUq4CadWL4M.mp3
+/dataset/YTCdataset/Britney Spears - Toxic/Yael Naim - Toxic-zqKZ_WIK5ms.mp3
+/dataset/YTCdataset/Frank Sinatra - New York, New York/Frank Sinatra - New York, New York (Cover by George Molan)-8j_NupkcF6U.mp3
+/dataset/YTCdataset/Eagles - Hotel California/Eagles - Hotel California (Lyrics)-h0G1Ucw5HDg.mp3
+/dataset/YTCdataset/Chuck Berry - Johnny B. Goode/Chuck Berry - Johnny B. Goode live-AEq62iQo0eU.mp3
