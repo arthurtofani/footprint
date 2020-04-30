@@ -42,7 +42,7 @@ def min_hash(word_list, k=12):
 
 def to_words(min_hash_response, max_str_size=70):
   #import code; code.interact(local=dict(globals(), **locals()))
-  return ' '.join([hashlib.md5('a'.join([str(x) for x in s]).encode('utf-8')).hexdigest()[:max_str_size] for s in min_hash_response])
+  return ' '.join([hashlib.md5('$'.join([str(x) for x in s]).encode('utf-8')).hexdigest()[:max_str_size] for s in min_hash_response])
   #return ' '.join([''.join([encode(int(x)) for x in r]) for r in min_hash_response])
 
 BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -59,5 +59,6 @@ def encode(num, alphabet=BASE62):
   return ''.join(arr)
 
 def magic_hash(feature, min_hash_fns=10, shingle_size=3):
-  return to_words(min_hash(shingle(naive_tokenizer(feature), shingle_size), min_hash_fns), 16)
+  #return to_words(min_hash(shingle(naive_tokenizer(feature), shingle_size), min_hash_fns), 16)
+  return to_words(shingle(naive_tokenizer(feature), shingle_size), 6)
 
