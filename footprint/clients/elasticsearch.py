@@ -9,7 +9,7 @@ class Connection(base.DbConnection):
   es = None
   current_index = None
   current_analyzer = None
-  current_tokens_key = None
+  current_tokens_keys = None
 
   def on_init(self):
     self.es = Elasticsearch(
@@ -27,34 +27,54 @@ class Connection(base.DbConnection):
     except NotFoundError:
       print('index %s not found, skipping' % index_name)
 
-  def set_scope(self, index_name, tokens_key, analyzer):
+  def set_scope(self, index_name, tokens_keys, analyzer, exclude_query_id=True):
     self.current_index = index_name
     self.current_analyzer = analyzer
-    self.current_tokens_key = tokens_key
+    self.exclude_query_id = exclude_query_id
+    if isinstance(tokens_keys, list):
+      self.current_tokens_keys = tokens_keys
+    else:
+      self.current_tokens_keys = [tokens_keys]
 
   def splitter(self, n, s):
     pieces = s.split()
     return [" ".join(pieces[i:i+n]) for i in range(0, len(pieces), n)]
 
+  def exclude_query_id_from_search(self, body, audio_filename):
+    obj = {
+      'must_not': {
+        'term': {'_id' : audio_filename}
+      }
+    }
+    body['query']['bool'].update(obj)
+
+  def create_matches(self, audio, split_length):
+    matches = []
+    for token_key in self.current_tokens_keys:
+      tokens = audio.tokens[token_key]
+      for piece in self.splitter(split_length, tokens):
+        match_obj = { 'match':{ token_key: { 'query': piece } } }
+        matches.append(match_obj)
+    return matches
+
   def query(self, audio, amnt_results=10, split_length=500):
     results = []
-    matches = []
-    tokens = audio.tokens[self.current_tokens_key]
-    try:
-      for piece in self.splitter(split_length, tokens):
-        match_obj = { 'match':{ self.current_tokens_key: { 'query': piece } } }
-        matches.append(match_obj)
-      body = {'query': {
-                'bool': {
-                  'should': matches
-                  }
-                },
-              'from' : 0, 'size' : amnt_results,
+    #try:
+    body = {'query': {
+              'bool': {
+                'should': self.create_matches(audio, split_length)
               }
-    except AttributeError:
-      warnings.warn("empty tokens: %s / %s" % (audio.filename, self.current_tokens_key))
-      return (audio, [])
-    res = self.es.search(index=self.current_index, doc_type='tokens', body=body)
+            },
+            'from' : 0,
+            'size' : amnt_results
+          }
+    if self.exclude_query_id:
+      self.exclude_query_id_from_search(body, audio.filename)
+    #except AttributeError:
+      #warnings.warn("empty tokens: %s / %s" % (audio.filename, ''))
+      #return (audio, [])
+    # import code; code.interact(local=dict(globals(), **locals()))
+    res = self.es.search(index=self.current_index, doc_type='tokens', body=body, request_timeout=60)
     results = []
     for idx in range(len(res['hits']['hits'])):
       filename = res['hits']['hits'][idx]['_id']

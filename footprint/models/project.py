@@ -39,7 +39,7 @@ class Project:
   def match(self, filename, k):
     audio = self.load_audio(filename)
     match_result = self.client.query(audio, k)
-    print(audio.filename)
+    audio.y = None
     return match_result
 
   def add(self, filename):
