@@ -1,8 +1,9 @@
 import crema
 from scipy import interpolate
+import numpy as np
 
 # adapted from acoss: https://github.com/furkanyesiler/acoss/blob/master/acoss/features.py
-def load(audio, hop_length=512):
+def process(audio, hop_length=512):
   model = crema.models.chord.ChordModel()
   data = model.outputs(y=audio.y, sr=audio.sr)
   fac = (float(audio.sr) / 44100.0) * 4096.0 / hop_length
