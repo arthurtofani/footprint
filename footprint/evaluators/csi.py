@@ -22,6 +22,9 @@ class CSI:
   def __init__(self, project):
     self.project = project
 
+  def preprocess(self, records_list):
+    yield self.get_filenames(records_list)
+
   def build(self, records_list_path, exclude_path=None):
     '''
     Receives the list of records that will be
