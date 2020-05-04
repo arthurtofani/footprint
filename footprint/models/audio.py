@@ -43,7 +43,7 @@ class Audio:
       self.persist_signal()
 
   def signal(self):
-    if self.y==None:
+    if self.y is None:
       self.y, self.sr = self.__load_signal()
     return (self.y, self.sr)
 
