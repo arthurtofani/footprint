@@ -22,12 +22,14 @@ class Audio:
     self.tokens = defaultdict()
     self.signal_has_changed = False
     self.feature_has_changed = False
+    self.token_has_changed = False
     self.y = None
     self.sr = None
 
   def load(self):
     if self.project.cache_features:
       self.__load_features_from_cache()
+      self.__load_tokens_from_cache()
 
   def add_feature(self, feature_name, feature):
     self.features[feature_name] = feature
@@ -35,10 +37,13 @@ class Audio:
 
   def add_tokens(self, tokens_key, tokens):
     self.tokens[tokens_key] = tokens
+    self.token_has_changed = True
 
   def persist(self):
     if self.project.cache_features and self.feature_has_changed:
       self.persist_features()
+    if self.project.cache_tokens and self.token_has_changed:
+      self.persist_tokens()
     if self.project.cache_signal and self.signal_has_changed:
       self.persist_signal()
 
@@ -54,22 +59,29 @@ class Audio:
   def persist_features(self):
     self.__create_cache_folder()
     print('dumping features', self.filename)
-    with h5py.File(self.__cache_filename('features'), "w") as f:
+    with h5py.File(self.cache_filename('features'), "w") as f:
       for key in self.features.keys():
         f.create_dataset(key, data=self.features[key])
     self.feature_has_changed = False
 
+  def persist_tokens(self):
+    print('dumping tokens', self.filename)
+    with h5py.File(self.cache_filename('tokens'), "w") as f:
+      for key in self.tokens.keys():
+        f.attrs[key] = self.tokens[key]
+    self.token_has_changed = False
+
   def persist_signal(self):
     self.__create_cache_folder()
     print('dumping audio', self.filename)
-    with h5py.File(self.__cache_filename('audio'), "w") as f:
+    with h5py.File(self.cache_filename('audio'), "w") as f:
       f.create_dataset('y', data=self.y)
       f.attrs["sr"] = self.sr
     self.signal_has_changed = False
 
   def clean_cache(self, file_type_str):
-    if self.__cache_filename_exists():
-      os.remove(self.__cache_filename(file_type_str))
+    if self.cache_filename_exists():
+      os.remove(self.cache_filename(file_type_str))
 
   def __load_signal(self):
     return self.__load_signal_from_cache() or self.__load_signal_from_file()
@@ -81,26 +93,34 @@ class Audio:
     return (self.y, self.sr)
 
   def __load_signal_from_cache(self):
-    if not self.__cache_filename_exists('audio'):
+    if not self.cache_filename_exists('audio'):
       return None
     print('loading signal from cache - %s' % self.filename)
-    with h5py.File(self.__cache_filename('audio'), 'r') as f:
+    with h5py.File(self.cache_filename('audio'), 'r') as f:
       self.y  = np.array(f['y'])
       self.sr = f.attrs["sr"]
     return (self.y, self.sr)
 
   def __load_features_from_cache(self):
-    if not self.__cache_filename_exists('features'):
+    if not self.cache_filename_exists('features'):
       return
-    with h5py.File(self.__cache_filename('features'), 'r') as f:
+    with h5py.File(self.cache_filename('features'), 'r') as f:
       for k in f.keys():
         self.features[k] = np.array(f[k])
 
-  def __cache_filename(self, file_type_str):
+  def __load_tokens_from_cache(self):
+    if not self.cache_filename_exists('tokens'):
+      return
+    with h5py.File(self.cache_filename('tokens'), 'r') as f:
+      for k in f.attrs.keys():
+        self.tokens[k] = f.attrs[k]
+    self.token_has_changed = False
+
+  def cache_filename(self, file_type_str):
     return self.__cache_folder() + ('/%s.hdf5' % file_type_str)
 
-  def __cache_filename_exists(self, file_type_str):
-    return os.path.isfile(self.__cache_filename(file_type_str))
+  def cache_filename_exists(self, file_type_str):
+    return os.path.isfile(self.cache_filename(file_type_str))
 
   def __create_cache_folder(self):
     os.makedirs(self.__cache_folder(), exist_ok=True)

@@ -9,14 +9,16 @@ class Project:
   client = None
   cache_signal = False
   cache_features = False
+  cache_tokens = False
 
-  def __init__(self, cache_signal=False, cache_features=False, cache_folder='.'):
+  def __init__(self, cache_signal=False, cache_features=False, cache_tokens=False, cache_folder='.'):
     self.cache_folder = cache_folder
     self.feature_methods = defaultdict()
     self.tokenization_methods = defaultdict()
     self.features_order = []
     self.cache_signal = cache_signal
     self.cache_features = cache_features
+    self.cache_tokens = cache_tokens
 
   def load_audio(self, filename):
     audio = self.__load_audio(filename)
@@ -59,6 +61,7 @@ class Project:
       if k not in audio.tokens:
         r = self.tokenization_methods[k](audio)
         audio.add_tokens(k, r)
+    audio.persist()
 
   def __load_audio(self, filename):
     a = Audio(filename, self)
