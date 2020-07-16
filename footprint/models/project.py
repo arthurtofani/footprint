@@ -58,7 +58,8 @@ class Project:
 
   def __tokenize(self, audio):
     for k in self.tokenization_methods.keys():
-      if k not in audio.tokens:
+      if k not in audio.tokens.keys():
+        print('tokenizing %s' % k)
         r = self.tokenization_methods[k](audio)
         audio.add_tokens(k, r)
     audio.persist()

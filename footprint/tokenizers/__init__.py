@@ -1,3 +1,4 @@
+from pyts.approximation import SymbolicAggregateApproximation
 import numpy as np
 from datasketch import MinHash
 from collections import deque
@@ -5,7 +6,23 @@ import hashlib
 
 def naive_tokenizer(feature, offset=70, pace=10):
   f = np.array(feature)
-  return ' '.join([''.join([chr(int(i*pace)+offset) for i in fr]) for fr in f.T])
+  try:
+    return ' '.join([''.join([chr(int(i*pace)+offset) for i in fr]) for fr in f.T])
+  except TypeError:
+    # when the array contains only numbers we'll use another strategy
+    return 'aaa bbb ccc ddd eee fff ggg'
+    #a = [encode(i) for i in f]
+    #return ' '.join([''.join(x) for x in list(zip(a[:], a[1:]))])
+
+
+# - Not good for features with few coefficients, since we lose frames
+def sax(feature, n_bins=None):
+  f = feature.T
+  const_idxs = np.where(np.var(f, axis=1) < 0.01)[0]
+  f = np.array([f[i] for i in range(len(f)) if i not in const_idxs])
+  transformer = SymbolicAggregateApproximation(n_bins=(n_bins or feature.shape[0]), strategy='uniform')
+  tokens = [''.join(i) for i in transformer.transform(f)]
+  return ' '.join(tokens)
 
 def shingle(tokens, size):
   return ['.'.join(x) for x in list(__shingle(tokens.split(), size))]
@@ -61,4 +78,6 @@ def encode(num, alphabet=BASE62):
 def magic_hash(feature, min_hash_fns=10, shingle_size=3):
   #return to_words(min_hash(shingle(naive_tokenizer(feature), shingle_size), min_hash_fns), 16)
   return to_words(shingle(naive_tokenizer(feature), shingle_size), 6)
+  #import code; code.interact(local=dict(globals(), **locals()))
+  #return to_words(shingle(sax(feature), shingle_size), 6)
 

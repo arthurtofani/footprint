@@ -39,8 +39,11 @@ class CSI:
       exclude_files  = self.get_filenames(exclude_path)
     records_files = self.get_filenames(records_list_path)
     self.db_files = [x for x in records_files if x not in exclude_files]
+    ct = 0
+    total = len(self.db_files)
     for filename in self.db_files:
-      print('Adding %s' % filename)
+      ct+=1
+      print('[%s/%s] - Adding %s' % (ct, total, filename))
       self.project.add(filename)
 
 
@@ -54,11 +57,14 @@ class CSI:
     self.match_results = []
     self.amnt_results_per_query = amnt_results_per_query
     self.queries = self.get_filenames(self.query_files)
+
     sz = len(self.queries)
     for f in self.queries:
       ct+=1
       print('%s of %s => %s' % (ct, sz, f))
       res = self.project.match(f, self.amnt_results_per_query)
+      #yield res
+      res[0].features = dict()
       self.match_results.append(res)
 
   def evaluate(self):
@@ -66,15 +72,19 @@ class CSI:
 
   def results(self, clique_map, ranking_size=10):
     csi_measures = measures.Measures(self.distance_matrix, clique_map, self.queries, self.db_files)
-    v3 = csi_measures.mean_avg_precisions()
     v0 = csi_measures.total_covers_in_top_k(ranking_size)
-    v1 = csi_measures.mean_number_of_covers_in_top_k(ranking_size)
+    v1 = csi_measures.mean_number_of_covers_in_top_k(1)
+    v1b = csi_measures.mean_number_of_covers_in_top_k(10)
     v2 = csi_measures.mean_rank_of_first_correct_cover()
+    v3 = csi_measures.mean_avg_precisions()
+    v4 = csi_measures.mean_reciprocal_rank(ranking_size)
 
     obj = {
       'Total covers in top %s' % ranking_size: v0,
-      'Mean number of covers in top %s' % ranking_size: v1,
-      'Mean rank of first correct cover (MRR)': v2,
+      'Mean number of covers in top 1': v1,
+      'Mean number of covers in top 10': v1b,
+      'Mean rank of first correct cover (MR)': v2,
+      'Mean reciprocal rank (MRR)': v4,
       'Mean Average Precision (MAP)': v3,
       'Total cliques': len(set(clique_map.values())),
       'Total candidates': len(self.db_files),

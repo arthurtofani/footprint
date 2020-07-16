@@ -14,17 +14,33 @@ class Measures:
 
   def mean_avg_precisions(self):
     ap_arr = []
-    for ranking, idx in self.__compute_ranking():
+    for ranking, idx, indexes in self.__compute_ranking():
       ap = average_precision(np.array(ranking).astype(int))
       ap_arr.append(ap)
     return np.sum(ap_arr)/len(ap_arr)
 
   def mean_rank_of_first_correct_cover(self):
     rank_arr = []
-    for ranking, idx in self.__compute_ranking():
+    for ranking, idx, indexes in self.__compute_ranking():
       pos_first_correct_cover = np.argmax(ranking)+1
       rank_arr.append(pos_first_correct_cover)
     return np.sum(rank_arr)/len(rank_arr)
+
+  def mean_reciprocal_rank(self, k):
+    rank_arr = []
+    for ranking, idx, indexes in self.__compute_ranking():
+      top1_idx = indexes[np.argmax(ranking)]
+      top1_dists = self.distance_matrix[top1_idx]
+      reciprocal_idx = [k for k in np.argsort(top1_dists) if k != top1_idx][0]
+      rank_arr.append(int(reciprocal_idx==idx))
+      #import code; code.interact(local=dict(globals(), **locals()))
+    return np.sum(rank_arr)/len(rank_arr)
+
+    #rank_arr = []
+    #for ranking, idx, indexes in self.__compute_ranking():
+    #  pos_first_correct_cover = indexes[np.argmax(ranking)]+1
+    #  rank_arr.append(pos_first_correct_cover)
+    #return np.sum(rank_arr)/len(rank_arr)
 
   def total_covers_in_top_k(self, k):
     return sum([self.total_correct_covers_at_rank_pos(x) for x in range(k)])
@@ -35,7 +51,7 @@ class Measures:
 
   def total_correct_covers_at_rank_pos(self, pos):
     arr = []
-    for ranking, idx in self.__compute_ranking():
+    for ranking, idx, indexes in self.__compute_ranking():
       arr.append(ranking)
     try:
       return np.array(arr).astype(int).T[pos].sum()
@@ -45,9 +61,9 @@ class Measures:
   def __compute_ranking(self):
     amnt_queries = len(self.distance_matrix)
     for query_idx in range(amnt_queries):
-      indexes = np.argsort(self.distance_matrix[query_idx])
+      indexes = [k for k in np.argsort(self.distance_matrix[query_idx]) if k != query_idx]
       ranking = [self.clique_map[self.db_records[i]]==self.clique_map[self.queries[query_idx]] for i in indexes]
-      yield ranking, query_idx
+      yield ranking, query_idx, indexes
 
 def average_precision(r):
     r = np.asarray(r) != 0

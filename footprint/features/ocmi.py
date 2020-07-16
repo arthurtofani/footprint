@@ -1,25 +1,32 @@
 import numpy as np
+import librosa
+from sklearn.preprocessing import MinMaxScaler
 
-# Ordered chromagram magnitude indexes
-def ocmi(feature):
-  return np.argsort(feature.T).T
+# Ordered Chromagram Magnitude Indexes
+def ocmi(feature, scaled=True):
+  # coefficients must be between 0..1
+  r = np.argsort(1 - feature.T).T
+  return (MinMaxScaler().fit_transform(r) if scaled else r)
 
 # OCMI normalized
 # uses relative distances to the most prominent index
-def ocmi_norm(feature):
-  ft = ocmi(feature).T
-  return np.array([[(r - frame[0]) % 12 for r in frame][1:] for frame in ft]).T
+def ocmi_rel(feature, scaled=True):
+    x = ocmi(feature, False)
+    r =  ((x - x[0]) % 12)[1:]
+    return (MinMaxScaler().fit_transform(r) if scaled else r)
 
 # delta-ocmi measures the difference between two frames
 # key-insensitive
 def docmi(feature):
-    r = ocmi(feature)
-    arr = [[] + [__idx_dist(*values) for values in zip(A, A[1:])] for A in r]
-    return np.array(arr)
+  return delta(ocmi(feature))
+
+def docmi_rel(feature):
+  return delta(ocmi_rel(feature))
+
+def delta(feature, scaled=True):
+  r = librosa.feature.delta(feature)
+  return (MinMaxScaler().fit_transform(r) if scaled else r)
 
 def tokenize(feature, char_offset=65):
     words = [''.join([chr(a) for a in (x+char_offset)]) for x in feature.T]
     return ' '.join(words)
-
-def __idx_dist(idx_1, idx_2):
-    return (idx_2 - idx_1) % 12

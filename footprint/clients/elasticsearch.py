@@ -16,10 +16,11 @@ class Connection(base.DbConnection):
             [self.config.get('host') or 'localhost'],
             scheme=(self.config.get('protocol') or 'http'),
             port=(self.config.get('port') or 9200),
+            timeout=30
     )
 
   def setup_index(self, index_name, settings):
-    self.es.indices.create(index=index_name, body=settings, ignore=400)
+    self.es.indices.create(index=index_name, body=settings)
 
   def clear_index(self, index_name):
     try:
@@ -74,7 +75,7 @@ class Connection(base.DbConnection):
       #warnings.warn("empty tokens: %s / %s" % (audio.filename, ''))
       #return (audio, [])
     # import code; code.interact(local=dict(globals(), **locals()))
-    res = self.es.search(index=self.current_index, doc_type='tokens', body=body, request_timeout=60)
+    res = self.es.search(index=self.current_index, doc_type='tokens', body=body, request_timeout=240)
     results = []
     for idx in range(len(res['hits']['hits'])):
       filename = res['hits']['hits'][idx]['_id']
@@ -83,7 +84,9 @@ class Connection(base.DbConnection):
     return audio, results
 
   def add(self, audio):
-    self.es.index(index=self.current_index, doc_type='tokens', id=audio.filename, body=dict(audio.tokens))
+    body = dict(audio.tokens).copy()
+    body['timeout'] = 30
+    self.es.index(index=self.current_index, doc_type='tokens', id=audio.filename, body=body)
     return audio
 
   def __create_document(self, doc):
