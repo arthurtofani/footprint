@@ -1,5 +1,4 @@
 from collections import defaultdict
-import librosa
 import os
 import numpy as np
 import h5py
@@ -87,6 +86,7 @@ class Audio:
     return self.__load_signal_from_cache() or self.__load_signal_from_file()
 
   def __load_signal_from_file(self):
+    import librosa
     print('loading signal from file - %s' % self.filename)
     self.y, self.sr = librosa.load(self.filename)
     self.signal_has_changed = True

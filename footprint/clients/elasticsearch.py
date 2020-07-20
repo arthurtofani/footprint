@@ -79,7 +79,10 @@ class Connection(base.DbConnection):
     results = []
     for idx in range(len(res['hits']['hits'])):
       filename = res['hits']['hits'][idx]['_id']
-      score = res['hits']['hits'][idx]['_score']/res['hits']['max_score']
+      try:
+        score = res['hits']['hits'][idx]['_score']/res['hits']['max_score']
+      except ZeroDivisionError:
+        score = 0
       results.append(MatchResult(filename, score, []))
     return audio, results
 

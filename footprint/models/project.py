@@ -52,14 +52,14 @@ class Project:
   def __process_features(self, audio):
     for f in self.features_order:
       if f not in audio.features:
-        print('Loading %s for file %s...' % (f, audio.filename))
+        #print('Loading %s for file %s...' % (f, audio.filename))
         audio.add_feature(f, self.feature_methods[f](audio))
     audio.persist()
 
   def __tokenize(self, audio):
     for k in self.tokenization_methods.keys():
       if k not in audio.tokens.keys():
-        print('tokenizing %s' % k)
+        #print('tokenizing %s' % k)
         r = self.tokenization_methods[k](audio)
         audio.add_tokens(k, r)
     audio.persist()

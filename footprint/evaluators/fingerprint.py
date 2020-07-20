@@ -1,8 +1,5 @@
-import numpy as np
 import glob
 import random
-import librosa
-import audioread
 import os.path
 import uuid
 
@@ -35,6 +32,8 @@ class Fingerprint:
     amount: how any queries to create
     duration: the query duration in seconds. When None, it uses the full record length
     '''
+    import librosa
+
     files = self.get_filenames(src)
     os.makedirs(queries_path, exist_ok=True)
 
@@ -77,6 +76,7 @@ class Fingerprint:
     return x
 
   def query_offset(self, filename, duration):
+    import audioread
     with audioread.audio_open(filename) as f:
       dur = f.duration
     return random.random() * (dur - duration)
