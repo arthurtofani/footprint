@@ -41,40 +41,39 @@ class Connection(base.DbConnection):
     pieces = s.split()
     return [" ".join(pieces[i:i+n]) for i in range(0, len(pieces), n)]
 
-  def exclude_query_id_from_search(self, body, audio_filename):
+  def exclude_query_id_from_search(self, body, document_filename):
     obj = {
       'must_not': {
-        'term': {'_id' : audio_filename}
+        'term': {'_id' : document_filename}
       }
     }
     body['query']['bool'].update(obj)
 
-  def create_matches(self, audio, split_length):
+  def create_matches(self, document, split_length):
     matches = []
     for token_key in self.current_tokens_keys:
-      tokens = audio.tokens[token_key]
+      tokens = document.tokens[token_key]
       for piece in self.splitter(split_length, tokens):
         match_obj = { 'match':{ token_key: { 'query': piece } } }
         matches.append(match_obj)
     return matches
 
-  def query(self, audio, amnt_results=10, split_length=500):
+  def query(self, document, amnt_results=10, split_length=500):
     results = []
     #try:
     body = {'query': {
               'bool': {
-                'should': self.create_matches(audio, split_length)
+                'should': self.create_matches(document, split_length)
               }
             },
             'from' : 0,
             'size' : amnt_results
           }
     if self.exclude_query_id:
-      self.exclude_query_id_from_search(body, audio.filename)
+      self.exclude_query_id_from_search(body, document.filename)
     #except AttributeError:
-      #warnings.warn("empty tokens: %s / %s" % (audio.filename, ''))
-      #return (audio, [])
-    # import code; code.interact(local=dict(globals(), **locals()))
+      #warnings.warn("empty tokens: %s / %s" % (document.filename, ''))
+      #return (document, [])
     res = self.es.search(index=self.current_index, doc_type='tokens', body=body, request_timeout=240)
     results = []
     for idx in range(len(res['hits']['hits'])):
@@ -83,14 +82,16 @@ class Connection(base.DbConnection):
         score = res['hits']['hits'][idx]['_score']/res['hits']['max_score']
       except ZeroDivisionError:
         score = 0
-      results.append(MatchResult(filename, score, []))
-    return audio, results
+      tokens = res['hits']['hits'][idx]['_source']
+      del tokens['timeout']
+      results.append(MatchResult(filename, score, tokens))
+    return document, results
 
-  def add(self, audio):
-    body = dict(audio.tokens).copy()
+  def add(self, document):
+    body = dict(document.tokens).copy()
     body['timeout'] = 30
-    self.es.index(index=self.current_index, doc_type='tokens', id=audio.filename, body=body)
-    return audio
+    self.es.index(index=self.current_index, doc_type='tokens', id=document.filename, body=body)
+    return document
 
   def __create_document(self, doc):
     self.es.create()

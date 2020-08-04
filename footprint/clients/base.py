@@ -9,10 +9,10 @@ class DbConnection:
   def on_init():
     pass
 
-  def query(self, audio, amnt_results=10):
+  def query(self, document, amnt_results=10):
     raise NotImplementedError
 
-  def add(self, audio):
+  def add(self, document):
     raise NotImplementedError
 
   def clear(self):
