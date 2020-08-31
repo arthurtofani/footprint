@@ -64,6 +64,7 @@ class Audio:
     self.feature_has_changed = False
 
   def persist_tokens(self):
+    self.__create_cache_folder()
     print('dumping tokens', self.filename)
     with h5py.File(self.cache_filename('tokens'), "w") as f:
       for key in self.tokens.keys():
