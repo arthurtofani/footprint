@@ -1,5 +1,7 @@
 from collections import defaultdict
 import os
+import pandas as pd
+import glob
 import numpy as np
 import h5py
 
@@ -60,7 +62,12 @@ class Audio:
     print('dumping features', self.filename)
     with h5py.File(self.cache_filename('features'), "w") as f:
       for key in self.features.keys():
-        f.create_dataset(key, data=self.features[key])
+        ft = self.features[key]
+        if type(ft) is pd.DataFrame:
+          pd_filename = self.cache_pandas_filename(key)
+          ft.to_csv(pd_filename, index=False, sep='\t')
+        else:
+          f.create_dataset(key, data=self.features[key])
     self.feature_has_changed = False
 
   def persist_tokens(self):
@@ -105,6 +112,10 @@ class Audio:
   def __load_features_from_cache(self):
     if not self.cache_filename_exists('features'):
       return
+    fld = self.project.cache_folder + self.filename
+    for f in glob.glob('%s/feat_*' % fld):
+      feature_name = f.split('/')[-1].split('.csv')[0].split('feat_')[-1]
+      self.features[feature_name] = pd.read_csv(f, sep='\t')
     with h5py.File(self.cache_filename('features'), 'r') as f:
       for k in f.keys():
         self.features[k] = np.array(f[k])
@@ -119,6 +130,10 @@ class Audio:
 
   def cache_filename(self, file_type_str):
     return self.__cache_folder() + ('/%s.hdf5' % file_type_str)
+
+  def cache_pandas_filename(self, file_type_str):
+    return self.__cache_folder() + ('/feat_%s.csv' % file_type_str)
+
 
   def cache_filename_exists(self, file_type_str):
     return os.path.isfile(self.cache_filename(file_type_str))

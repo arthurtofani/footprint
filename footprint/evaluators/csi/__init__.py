@@ -25,6 +25,11 @@ class CSI:
     self.project = project
     self.distance_matrix = None
 
+  def preprocess_batch(self, records_list, max_processors):
+    for total_files in self.preprocess(records_list):
+      with Pool(max_processors) as pool:
+        pool.map(preprocess_audio , total_files)
+
   def preprocess(self, records_list):
     yield self.get_filenames(records_list)
 
@@ -77,14 +82,14 @@ class CSI:
     v1b = csi_measures.mean_number_of_covers_in_top_k(10)
     v2 = csi_measures.mean_rank_of_first_correct_cover()
     v3 = csi_measures.mean_avg_precisions()
-    v4 = csi_measures.mean_reciprocal_rank(ranking_size)
+    #v4 = csi_measures.mean_reciprocal_rank(ranking_size)
 
     obj = {
       'Total covers in top %s' % ranking_size: v0,
       'Mean number of covers in top 1': v1,
       'Mean number of covers in top 10': v1b,
       'Mean rank of first correct cover (MR)': v2,
-      'Mean reciprocal rank (MRR)': v4,
+      #'Mean reciprocal rank (MRR)': v4,
       'Mean Average Precision (MAP)': v3,
       'Total cliques': len(set(clique_map.values())),
       'Total candidates': len(self.db_files),
@@ -99,9 +104,9 @@ class CSI:
     m = np.zeros((len(self.match_results), len(self.db_files))) + 1
     for i in range(len(self.match_results)):
       audio, matches = self.match_results[i]
-      query_idx = self.db_files.index(audio.filename)
-      if i < len(self.db_files):
-        m[i, i] = 0
+      query_idx = self.queries.index(audio.filename)
+      #if i < len(self.db_files):
+        #m[i, i] = 0
       for match in matches:
         idx2 = self.db_files.index(match.filename)
         m[i, idx2] = (1 - match.score)
@@ -109,12 +114,13 @@ class CSI:
     print('--- distance_matrix len', len(self.distance_matrix))
     return self.distance_matrix, self.queries
 
-
-
   def get_filenames(self, filelist):
-    fl = open(filelist)
-    all_files = fl.read().split('\n')
-    fl.close()
+    if type(filelist) is np.ndarray:
+      all_files = list(filelist)
+    else:
+      fl = open(filelist)
+      all_files = fl.read().split('\n')
+      fl.close()
     return list(np.sort(list(set(filter(lambda f: os.path.isfile(f), all_files)))))
 
 #  def __read_list(self, list_path):
