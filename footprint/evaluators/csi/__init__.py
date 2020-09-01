@@ -1,3 +1,5 @@
+#from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool as Pool
 import numpy as np
 import glob
 import random
@@ -33,7 +35,7 @@ class CSI:
   def preprocess(self, records_list):
     yield self.get_filenames(records_list)
 
-  def build(self, records_list_path, exclude_path=None):
+  def build(self, records_list_path, exclude_path=None, max_processors=None):
     '''
     Receives the list of records that will be
     sent to the database.
@@ -46,10 +48,15 @@ class CSI:
     self.db_files = [x for x in records_files if x not in exclude_files]
     ct = 0
     total = len(self.db_files)
-    for filename in self.db_files:
-      ct+=1
-      print('[%s/%s] - Adding %s' % (ct, total, filename))
-      self.project.add(filename)
+
+    if max_processors==None:
+      for filename in self.db_files:
+        ct+=1
+        print('[%s/%s] - Adding %s' % (ct, total, filename))
+        self.project.add(filename)
+    else:
+      with Pool(max_processors) as pool:
+        pool.map(self.project.add , self.db_files)
 
 
   def match(self, query_files, amnt_results_per_query=10):
@@ -127,5 +134,3 @@ class CSI:
 #    with open(list_path, 'r') as f:
 #      x = f.read().splitlines()
 #    return x
-
-

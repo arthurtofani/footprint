@@ -20,11 +20,6 @@ class Project:
     self.cache_features = cache_features
     self.cache_tokens = cache_tokens
 
-  def preload_audio(self, filename):
-    audio = self.load_audio(filename)
-    del audio
-
-
   def load_audio(self, filename):
     audio = self.__load_audio(filename)
     self.__process_features(audio)
