@@ -20,6 +20,7 @@ class Project:
     self.cache_features = cache_features
     self.cache_tokens = cache_tokens
 
+
   def load_audio(self, filename):
     audio = self.__load_audio(filename)
     self.__process_features(audio)

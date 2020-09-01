@@ -1,5 +1,3 @@
-#from multiprocessing import Pool
-from multiprocessing.pool import ThreadPool as Pool
 import numpy as np
 import glob
 import random
@@ -48,15 +46,10 @@ class CSI:
     self.db_files = [x for x in records_files if x not in exclude_files]
     ct = 0
     total = len(self.db_files)
-
-    if max_processors==None:
-      for filename in self.db_files:
-        ct+=1
-        print('[%s/%s] - Adding %s' % (ct, total, filename))
-        self.project.add(filename)
-    else:
-      with Pool(max_processors) as pool:
-        pool.map(self.project.add , self.db_files)
+    for filename in self.db_files:
+      ct+=1
+      print('[%s/%s] - Adding %s' % (ct, total, filename))
+      self.project.add(filename)
 
 
   def match(self, query_files, amnt_results_per_query=10):
